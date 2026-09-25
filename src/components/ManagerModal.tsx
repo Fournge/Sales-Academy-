@@ -619,11 +619,25 @@ export const ManagerModal: React.FC<ManagerModalProps> = ({
                         </div>
                       </div>
 
-                      {/* Sales Hook & Duration */}
+                      {/* Target Objection / Common Scenario */}
+                      <div>
+                        <label className="block text-xs font-semibold text-sky-300 uppercase tracking-wider mb-1">
+                          Target Objection / Focus Scenario (Hero Billboard Callout)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingModule.keyObjection || ''}
+                          onChange={(e) => setEditingModule({ ...editingModule, keyObjection: e.target.value })}
+                          placeholder={`e.g. "I didn't ask for a quote / I'm busy right now"`}
+                          className="w-full px-3 py-2 bg-[#001740] border border-blue-800/60 rounded-lg text-xs text-white focus:ring-2 focus:ring-[#0077c8]"
+                        />
+                      </div>
+
+                      {/* Sales Hook, Badge & Duration */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="sm:col-span-2">
                           <label className="block text-xs font-semibold text-sky-300 uppercase tracking-wider mb-1">
-                            Core Sales Hook (1-liner)
+                            Core Sales Hook / Key Takeaway (1-liner)
                           </label>
                           <input
                             type="text"
@@ -651,6 +665,35 @@ export const ManagerModal: React.FC<ManagerModalProps> = ({
                         </div>
                       </div>
 
+                      {/* Badge Text & Detailed Description */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-sky-300 uppercase tracking-wider mb-1">
+                            Badge Tag (Optional)
+                          </label>
+                          <input
+                            type="text"
+                            value={editingModule.badgeText || ''}
+                            onChange={(e) => setEditingModule({ ...editingModule, badgeText: e.target.value })}
+                            placeholder="e.g. Highest Close Rate"
+                            className="w-full px-3 py-2 bg-[#001740] border border-blue-800/60 rounded-lg text-xs text-white focus:ring-2 focus:ring-[#0077c8]"
+                          />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs font-semibold text-sky-300 uppercase tracking-wider mb-1">
+                            Detailed Description
+                          </label>
+                          <input
+                            type="text"
+                            value={editingModule.description || ''}
+                            onChange={(e) => setEditingModule({ ...editingModule, description: e.target.value })}
+                            placeholder="Detailed overview of what agents learn in this training..."
+                            className="w-full px-3 py-2 bg-[#001740] border border-blue-800/60 rounded-lg text-xs text-white focus:ring-2 focus:ring-[#0077c8]"
+                          />
+                        </div>
+                      </div>
+
                       {/* Featured Spotlight Toggle */}
                       <div className="flex items-center gap-2 pt-1">
                         <input
@@ -660,9 +703,9 @@ export const ManagerModal: React.FC<ManagerModalProps> = ({
                           onChange={(e) =>
                             setEditingModule({ ...editingModule, isFeaturedBillboard: e.target.checked })
                           }
-                          className="rounded text-[#0077c8] focus:ring-[#0077c8] w-4 h-4 bg-[#001740] border-blue-800"
+                          className="rounded text-[#0077c8] focus:ring-[#0077c8] w-4 h-4 bg-[#001740] border-blue-800 cursor-pointer"
                         />
-                        <label htmlFor="featuredToggle" className="text-xs text-slate-200 font-medium">
+                        <label htmlFor="featuredToggle" className="text-xs text-slate-200 font-medium cursor-pointer">
                           Set as Top Hero Spotlight Marquee
                         </label>
                       </div>
@@ -684,6 +727,17 @@ export const ManagerModal: React.FC<ManagerModalProps> = ({
                             categoryName={agencyState.categories.find((c) => c.id === editingModule.categoryId)?.name}
                             isCompact={false}
                           />
+
+                          {/* Live Target Objection Badge Preview */}
+                          {editingModule.keyObjection && (
+                            <div className="bg-[#00102e] border border-blue-500/40 rounded-lg p-2.5 shadow-md flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-2 truncate">
+                                <span className="text-sky-400 font-bold uppercase tracking-wider text-[10px]">Target Objection:</span>
+                                <span className="text-slate-200 truncate italic">"{editingModule.keyObjection}"</span>
+                              </div>
+                              <span className="text-[10px] text-sky-400 font-mono">Billboard</span>
+                            </div>
+                          )}
                         </div>
 
                         {/* Realtime Scannable QR Code Sandbox */}
