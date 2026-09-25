@@ -247,23 +247,58 @@ export const ManagerModal: React.FC<ManagerModalProps> = ({
   };
 
   // Add category handler
-  const handleAddCategory = () => {
+  const handleSaveCategory = () => {
     if (!newCatName.trim()) return;
-    const newCat: TrainingCategory = {
-      id: `cat-${Date.now()}`,
-      name: newCatName.trim(),
-      description: newCatDesc.trim() || 'Core training curriculum shelf',
-      sortOrder: agencyState.categories.length + 1,
-      iconName: 'Shield',
-    };
-    const nextState: AgencyDataState = {
-      ...agencyState,
-      categories: [...agencyState.categories, newCat],
-    };
-    onSaveState(nextState);
+
+    if (editingCatId) {
+      // Update existing category shelf
+      const updatedCategories = agencyState.categories.map((c) =>
+        c.id === editingCatId
+          ? {
+              ...c,
+              name: newCatName.trim(),
+              description: newCatDesc.trim() || c.description,
+            }
+          : c
+      );
+      onSaveState({
+        ...agencyState,
+        categories: updatedCategories,
+      });
+      setEditingCatId(null);
+      setNewCatName('');
+      setNewCatDesc('');
+      showToast('Category shelf updated!');
+    } else {
+      // Create new category shelf
+      const newCat: TrainingCategory = {
+        id: `cat-${Date.now()}`,
+        name: newCatName.trim(),
+        description: newCatDesc.trim() || 'Core training curriculum shelf',
+        sortOrder: agencyState.categories.length + 1,
+        iconName: 'Shield',
+      };
+      const nextState: AgencyDataState = {
+        ...agencyState,
+        categories: [...agencyState.categories, newCat],
+      };
+      onSaveState(nextState);
+      setNewCatName('');
+      setNewCatDesc('');
+      showToast('Category shelf added!');
+    }
+  };
+
+  const handleStartEditCategory = (cat: TrainingCategory) => {
+    setEditingCatId(cat.id);
+    setNewCatName(cat.name);
+    setNewCatDesc(cat.description || '');
+  };
+
+  const handleCancelEditCategory = () => {
+    setEditingCatId(null);
     setNewCatName('');
     setNewCatDesc('');
-    showToast('Category shelf added!');
   };
 
   const handleDeleteCategory = (catId: string) => {
@@ -783,65 +818,120 @@ export const ManagerModal: React.FC<ManagerModalProps> = ({
           {/* ================= TAB 2: SHELF BUILDER ================= */}
           {activeTab === 'categories' && (
             <div className="space-y-6">
-              <div className="p-4 bg-[#00163e] border border-blue-700/40 rounded-xl space-y-3">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <FolderPlus className="w-4 h-4 text-sky-400" />
-                  Add New Category Shelf
-                </h3>
+              <div className={`p-4 rounded-xl space-y-3 transition-all ${
+                editingCatId 
+                  ? 'bg-[#001c4c] border-2 border-sky-400/80 shadow-lg shadow-sky-500/10' 
+                  : 'bg-[#00163e] border border-blue-700/40'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    {editingCatId ? (
+                      <>
+                        <Edit3 className="w-4 h-4 text-sky-400" />
+                        <span>Edit Category Shelf</span>
+                      </>
+                    ) : (
+                      <>
+                        <FolderPlus className="w-4 h-4 text-sky-400" />
+                        <span>Add New Category Shelf</span>
+                      </>
+                    )}
+                  </h3>
+                  {editingCatId && (
+                    <span className="text-[10px] font-semibold text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded border border-sky-600/40">
+                      Editing Mode
+                    </span>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <input
                     type="text"
                     value={newCatName}
                     onChange={(e) => setNewCatName(e.target.value)}
                     placeholder="Category Shelf Name (e.g. Life Insurance 101)"
-                    className="px-3 py-2 bg-[#000f2b] border border-blue-800/60 rounded-lg text-xs text-white"
+                    className="px-3 py-2 bg-[#000f2b] border border-blue-800/60 rounded-lg text-xs text-white focus:ring-2 focus:ring-[#0077c8]"
                   />
                   <input
                     type="text"
                     value={newCatDesc}
                     onChange={(e) => setNewCatDesc(e.target.value)}
                     placeholder="Short description for agents..."
-                    className="px-3 py-2 bg-[#000f2b] border border-blue-800/60 rounded-lg text-xs text-white sm:col-span-2"
+                    className="px-3 py-2 bg-[#000f2b] border border-blue-800/60 rounded-lg text-xs text-white sm:col-span-2 focus:ring-2 focus:ring-[#0077c8]"
                   />
                 </div>
-                <button
-                  onClick={handleAddCategory}
-                  disabled={!newCatName.trim()}
-                  className="px-4 py-2 bg-[#0077c8] hover:bg-[#0060a8] disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-                >
-                  Create Category Shelf
-                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSaveCategory}
+                    disabled={!newCatName.trim()}
+                    className="px-4 py-2 bg-[#0077c8] hover:bg-[#0060a8] disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+                  >
+                    {editingCatId ? 'Save Shelf Changes' : 'Create Category Shelf'}
+                  </button>
+
+                  {editingCatId && (
+                    <button
+                      onClick={handleCancelEditCategory}
+                      className="px-4 py-2 bg-[#001740] hover:bg-[#002255] text-slate-300 hover:text-white text-xs font-semibold rounded-lg border border-blue-800/60 transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Existing Shelves List */}
               <div className="space-y-3">
-                <h3 className="text-sm font-display font-bold text-white">Active Shelves on Agent Dashboard</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-display font-bold text-white">Active Shelves on Agent Dashboard</h3>
+                  <span className="text-xs text-slate-400">{agencyState.categories.length} Shelves</span>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {agencyState.categories.map((cat, idx) => {
                     const moduleCount = agencyState.modules.filter((m) => m.categoryId === cat.id).length;
+                    const isBeingEdited = editingCatId === cat.id;
+
                     return (
                       <div
                         key={cat.id}
-                        className="p-4 bg-[#001438] border border-blue-900/50 rounded-xl flex items-center justify-between gap-3"
+                        className={`p-4 rounded-xl flex items-center justify-between gap-3 transition-all ${
+                          isBeingEdited
+                            ? 'bg-[#001c4c] border-2 border-sky-400 shadow-md shadow-sky-500/20'
+                            : 'bg-[#001438] border border-blue-900/50 hover:border-blue-700/60'
+                        }`}
                       >
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="w-5 h-5 rounded-full bg-blue-950 text-sky-300 font-mono text-[10px] font-bold flex items-center justify-center border border-blue-800">
+                            <span className="w-5 h-5 rounded-full bg-blue-950 text-sky-300 font-mono text-[10px] font-bold flex items-center justify-center border border-blue-800 shrink-0">
                               {idx + 1}
                             </span>
-                            <span className="font-bold text-white text-sm">{cat.name}</span>
+                            <span className="font-bold text-white text-sm truncate">{cat.name}</span>
                           </div>
                           <p className="text-xs text-slate-400 line-clamp-1">{cat.description}</p>
                           <span className="text-[11px] text-sky-400 font-mono">{moduleCount} Modules</span>
                         </div>
 
-                        <button
-                          onClick={() => handleDeleteCategory(cat.id)}
-                          className="p-2 text-rose-400 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-900/60 rounded-lg border border-rose-900/40 transition-colors"
-                          title="Delete Shelf"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {/* Edit Shelf Button */}
+                          <button
+                            onClick={() => handleStartEditCategory(cat)}
+                            className="p-2 text-sky-300 hover:text-white bg-blue-900/40 hover:bg-blue-800/60 rounded-lg border border-blue-700/50 transition-colors cursor-pointer"
+                            title="Edit Shelf"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+
+                          {/* Delete Shelf Button */}
+                          <button
+                            onClick={() => handleDeleteCategory(cat.id)}
+                            className="p-2 text-rose-400 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-900/60 rounded-lg border border-rose-900/40 transition-colors cursor-pointer"
+                            title="Delete Shelf"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
