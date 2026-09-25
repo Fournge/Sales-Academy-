@@ -1,0 +1,6 @@
+{
+  "name": "Tibbs Insurance Agency | Sales Academy",
+  "description": "Premier Netflix-style training streaming platform and sales academy for Tibbs Insurance Agency, streaming Google Drive videos, objection playbooks, and mobile resource QR hubs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
